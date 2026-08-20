@@ -1,0 +1,13 @@
+.gradle/
+build/
+out/
+run/
+eclipse/
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+**/*.class
+**/*.jar
+!gradle/wrapper/gradle-wrapper.jar
