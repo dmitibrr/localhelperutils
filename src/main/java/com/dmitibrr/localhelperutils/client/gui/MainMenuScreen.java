@@ -55,6 +55,18 @@ public class MainMenuScreen extends Screen {
         }).bounds(cx - 100, y, 200, 20).build());
 
         y += 22;
+        addRenderableWidget(Button.builder(
+                Component.translatable(cfgFarm()
+                        ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"),
+                b -> {
+                    ModConfig c = ModConfig.get();
+                    c.farmEnabled = !c.farmEnabled;
+                    c.save();
+                    b.setMessage(Component.translatable(
+                            c.farmEnabled ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"));
+                }).bounds(cx - 100, y, 200, 20).build());
+
+        y += 22;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.search"), b ->
                 mc.setScreen(new SearchScreen())).bounds(cx - 100, y, 200, 20).build());
 
@@ -65,6 +77,10 @@ public class MainMenuScreen extends Screen {
         y += 28;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.close"), b ->
                 this.onClose()).bounds(cx - 100, y, 200, 20).build());
+    }
+
+    private static boolean cfgFarm() {
+        return ModConfig.get().farmEnabled;
     }
 
     @Override

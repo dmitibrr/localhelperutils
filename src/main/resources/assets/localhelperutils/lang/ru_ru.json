@@ -2,7 +2,6 @@
   "category.localhelperutils": "Помощникъ Игрока (мѣстный)",
   "key.localhelperutils.menu": "Открыть меню помощника",
   "key.localhelperutils.toggle_replace": "Вкл/выкл идеальную замѣну",
-
   "localhelperutils.menu.title": "Помощникъ Игрока",
   "localhelperutils.menu.selection": "Режимъ выбора",
   "localhelperutils.menu.selection.on": "Режимъ выбора: ВКЛ",
@@ -17,7 +16,6 @@
   "localhelperutils.menu.back": "Назадъ",
   "localhelperutils.menu.footer": "Не читъ, а любезность серверу. Совѣсть замѣнѣ не мѣшаетъ.",
   "localhelperutils.menu.footer.off": "Идеальная замѣна выключена — покой и воля.",
-
   "localhelperutils.settings.title": "Настройки",
   "localhelperutils.settings.replace": "Идеальная замѣна: %s",
   "localhelperutils.settings.sneak": "Замѣна при крадучись: %s",
@@ -34,10 +32,13 @@
   "localhelperutils.settings.cat.modded": "Модовые хранилища: %s",
   "localhelperutils.settings.yes": "ВКЛ",
   "localhelperutils.settings.no": "ВЫКЛ",
-
   "localhelperutils.search.title": "Розыскъ предмета",
   "localhelperutils.search.field": "Впишите часть id предмета...",
   "localhelperutils.search.clear": "Очистить",
   "localhelperutils.search.hint": "Напр.: minecraft:rotten_flesh — и сыщется, гдѣ лежитъ.",
-  "localhelperutils.search.none": "Не найдено въ указателѣ. Обновите базу данныхъ."
+  "localhelperutils.search.none": "Не найдено въ указателѣ. Обновите базу данныхъ.",
+  "key.localhelperutils.toggle_farm": "Вкл/выкл фермерство",
+  "key.localhelperutils.add_crop": "Записать культуру подъ прицѣломъ",
+  "localhelperutils.menu.farm.on": "Фермерство: ВКЛ",
+  "localhelperutils.menu.farm.off": "Фермерство: ВЫКЛ"
 }

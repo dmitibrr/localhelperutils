@@ -18,6 +18,7 @@ public class ModConfig {
     public boolean replaceEnabled = true;
     public boolean replaceWhileSneaking = false;
     public boolean selectionMode = false;
+    public boolean farmEnabled = true;
     public Set<String> categories = new LinkedHashSet<>(ALL_CATEGORIES);
     public String sortMode = "name"; // name | tag | mod
     public boolean categorizeByMod = false;

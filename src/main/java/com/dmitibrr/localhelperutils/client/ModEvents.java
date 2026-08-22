@@ -44,15 +44,19 @@ public final class ModEvents {
                     mc.setScreen(new com.dmitibrr.localhelperutils.client.gui.MainMenuScreen());
                 }
             }
-            while (ModKeybinds.TOGGLE_REPLACE.consumeClick()) {
+            while (ModKeybinds.TOGGLE_FARM.consumeClick()) {
                 ModConfig cfg = ModConfig.get();
-                cfg.replaceEnabled = !cfg.replaceEnabled;
+                cfg.farmEnabled = !cfg.farmEnabled;
                 cfg.save();
                 mc.player.displayClientMessage(
                         net.minecraft.network.chat.Component.literal(
-                                cfg.replaceEnabled ? "§aИдеальная замѣна: вкл" : "§7Идеальная замѣна: выкл"), true);
+                                cfg.farmEnabled ? "§aФермерство: вкл" : "§7Фермерство: выкл"), true);
+            }
+            while (ModKeybinds.ADD_CROP.consumeClick()) {
+                FarmHelper.recordAimedCrop(mc);
             }
             PlacementHelper.tick(mc);
+            FarmHelper.tick(mc);
             StorageTaskExecutor.get().tick(mc);
         }
 
@@ -66,6 +70,17 @@ public final class ModEvents {
 
             HelperState.lastDim = mc.level.dimension();
             HelperState.lastPos = event.getPos().immutable();
+
+            // Фермерство: ПКМ по готовой культуре из базы — собрать и пересадить
+            if (!PlacementHelper.SYNTHETIC_USE && StorageTaskExecutor.get().isIdle()
+                    && ModConfig.get().farmEnabled && !mc.player.isShiftKeyDown()
+                    && FarmHelper.isReady(state)
+                    && FarmDB.get().getCrop(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString()) != null) {
+                if (FarmHelper.tryHarvest(mc, state, event.getPos(), event.getFace())) {
+                    event.setCanceled(true);
+                    return;
+                }
+            }
 
             if (StorageTaskExecutor.get().isIdle() && ModConfig.get().selectionMode
                     && !PlacementHelper.SYNTHETIC_USE) {

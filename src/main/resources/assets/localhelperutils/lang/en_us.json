@@ -2,7 +2,6 @@
   "category.localhelperutils": "Local Player Help Utils",
   "key.localhelperutils.menu": "Open Helper Menu",
   "key.localhelperutils.toggle_replace": "Toggle Instant Replacement",
-
   "localhelperutils.menu.title": "Local Player Help Utils",
   "localhelperutils.menu.selection": "Selection Mode",
   "localhelperutils.menu.selection.on": "Selection Mode: ON",
@@ -17,7 +16,6 @@
   "localhelperutils.menu.back": "Back",
   "localhelperutils.menu.footer": "Not a cheat, just good manners.",
   "localhelperutils.menu.footer.off": "Instant replacement is off — all calm.",
-
   "localhelperutils.settings.title": "Settings",
   "localhelperutils.settings.replace": "Instant Replacement: %s",
   "localhelperutils.settings.sneak": "Replace While Sneaking: %s",
@@ -34,10 +32,13 @@
   "localhelperutils.settings.cat.modded": "Modded containers: %s",
   "localhelperutils.settings.yes": "ON",
   "localhelperutils.settings.no": "OFF",
-
   "localhelperutils.search.title": "Find Item",
   "localhelperutils.search.field": "Type item id...",
   "localhelperutils.search.clear": "Clear",
   "localhelperutils.search.hint": "Type a part of an item id (e.g. minecraft:rotten_flesh).",
-  "localhelperutils.search.none": "Nothing found in the database."
+  "localhelperutils.search.none": "Nothing found in the database.",
+  "key.localhelperutils.toggle_farm": "Toggle Auto-Farming",
+  "key.localhelperutils.add_crop": "Register Aimed Crop",
+  "localhelperutils.menu.farm.on": "Auto-Farming: ON",
+  "localhelperutils.menu.farm.off": "Auto-Farming: OFF"
 }

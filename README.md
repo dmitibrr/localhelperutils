@@ -9,6 +9,7 @@ A personal convenience mod for a private server. No server-side mod, no operator
 ## Features
 
 - **Идеальная замѣна (Instant Replacement)** — break a block and it instantly comes back, placed from your off-hand (or main hand if the off-hand is empty). No cheats: just an item-use packet sent the moment the block is gone.
+- **Фермерство (Auto-Farming)** — register a crop you're aiming at (`Register Aimed Crop` keybind; the item in your hand becomes its seed), then right-click any registered ripe crop to harvest and auto-replant from your hotbar.
 - **Режимъ выбора (Selection Mode)** — right-click chests (and other openable containers) to mark them into your working set; they get highlighted with green boxes.
 - **Обновить указатель (Chest Database)** — walk near your marked chests; the mod opens each one by itself, reads the contents into a local JSON database (`config/localhelperutils/db.json`) and closes it.
 - **Совмѣщеніе стаковъ (Stack Merging)** — finds partial stacks across chests (e.g. 16 + 17 rotten flesh) and merges them into one, moving items through your inventory as a buffer with normal container clicks.

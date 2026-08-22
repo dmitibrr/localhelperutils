@@ -11,8 +11,16 @@ public class ModKeybinds {
             InputConstants.KEY_GRAVE,
             "category.localhelperutils");
 
-    public static final KeyMapping TOGGLE_REPLACE = new KeyMapping(
-            "key.localhelperutils.toggle_replace",
+    /** Вкл/выкл фермерство. По умолчанию не назначено. */
+    public static final KeyMapping TOGGLE_FARM = new KeyMapping(
+            "key.localhelperutils.toggle_farm",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.localhelperutils");
+
+    /** Записать прицеленную культуру в базу (посадочный материал — из руки). */
+    public static final KeyMapping ADD_CROP = new KeyMapping(
+            "key.localhelperutils.add_crop",
             InputConstants.Type.KEYSYM,
             InputConstants.UNKNOWN.getValue(),
             "category.localhelperutils");
@@ -21,6 +29,7 @@ public class ModKeybinds {
 
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(OPEN_MENU);
-        event.register(TOGGLE_REPLACE);
+        event.register(TOGGLE_FARM);
+        event.register(ADD_CROP);
     }
 }
