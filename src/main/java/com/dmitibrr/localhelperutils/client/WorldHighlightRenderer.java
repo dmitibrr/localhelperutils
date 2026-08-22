@@ -28,6 +28,7 @@ public final class WorldHighlightRenderer {
 
         PoseStack pose = event.getPoseStack();
         Camera cam = event.getCamera();
+        if (pose == null) return;
         String dim = mc.level.dimension().location().toString();
 
         pose.pushPose();
@@ -37,7 +38,7 @@ public final class WorldHighlightRenderer {
             for (String key : HelperState.selected) {
                 if (!key.startsWith(dim + "|")) continue;
                 BlockPos pos = ContainerKey.parsePos(key);
-                if (pos != null) box(pose, boxAt(pos), 0.15f, 0.95f, 0.2f, 0.45f);
+                if (pos != null) box(pose, boxAt(pos), 0.15f, 1.0f, 0.2f, 0.85f);
             }
         }
 
@@ -47,7 +48,7 @@ public final class WorldHighlightRenderer {
             if (pos != null) {
                 double t = (mc.level.getGameTime() % 40) / 40.0 * Math.PI * 2;
                 float pulse = 0.5f + 0.5f * (float) Math.sin(t);
-                box(pose, boxAt(pos), 1.0f, 0.85f, 0.1f, 0.45f + 0.5f * pulse);
+                box(pose, boxAt(pos), 1.0f, 0.85f, 0.1f, 0.6f + 0.4f * pulse);
             }
         }
 
@@ -55,7 +56,7 @@ public final class WorldHighlightRenderer {
             for (String key : StorageDB.get().findContainers(HelperState.searchItem)) {
                 if (!key.startsWith(dim + "|")) continue;
                 BlockPos pos = ContainerKey.parsePos(key);
-                if (pos != null) box(pose, boxAt(pos), 1.0f, 0.2f, 0.2f, 0.5f);
+                if (pos != null) box(pose, boxAt(pos), 1.0f, 0.25f, 0.25f, 0.8f);
             }
         }
 
@@ -90,7 +91,7 @@ public final class WorldHighlightRenderer {
     }
 
     private static AABB boxAt(BlockPos pos) {
-        return new AABB(pos).inflate(0.02);
+        return new AABB(pos).inflate(0.08);
     }
 
     private static void box(PoseStack pose, AABB box, float r, float g, float b, float a) {

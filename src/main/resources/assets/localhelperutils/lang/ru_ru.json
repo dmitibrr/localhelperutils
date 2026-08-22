@@ -40,5 +40,8 @@
   "key.localhelperutils.toggle_farm": "Вкл/выкл фермерство",
   "key.localhelperutils.add_crop": "Записать культуру подъ прицѣломъ",
   "localhelperutils.menu.farm.on": "Фермерство: ВКЛ",
-  "localhelperutils.menu.farm.off": "Фермерство: ВЫКЛ"
+  "localhelperutils.menu.farm.off": "Фермерство: ВЫКЛ",
+  "localhelperutils.menu.replace.on": "Идеальная замѣна: ВКЛ",
+  "localhelperutils.menu.replace.off": "Идеальная замѣна: ВЫКЛ",
+  "localhelperutils.menu.storage": "Порядокъ хранилищъ"
 }

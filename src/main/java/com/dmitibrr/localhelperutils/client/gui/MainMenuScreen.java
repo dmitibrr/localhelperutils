@@ -1,7 +1,6 @@
 package com.dmitibrr.localhelperutils.client.gui;
 
 import com.dmitibrr.localhelperutils.client.ModConfig;
-import com.dmitibrr.localhelperutils.client.StorageTaskExecutor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -16,47 +15,24 @@ public class MainMenuScreen extends Screen {
     @Override
     protected void init() {
         int cx = this.width / 2;
-        int y = 24;
+        int y = 26;
+        ModConfig cfg = ModConfig.get();
         Minecraft mc = Minecraft.getInstance();
 
         addRenderableWidget(Button.builder(
-                Component.translatable("localhelperutils.menu.selection"),
+                Component.translatable(cfg.replaceEnabled
+                        ? "localhelperutils.menu.replace.on" : "localhelperutils.menu.replace.off"),
                 b -> {
-                    ModConfig cfg = ModConfig.get();
-                    cfg.selectionMode = !cfg.selectionMode;
-                    cfg.save();
+                    ModConfig c = ModConfig.get();
+                    c.replaceEnabled = !c.replaceEnabled;
+                    c.save();
                     b.setMessage(Component.translatable(
-                            cfg.selectionMode ? "localhelperutils.menu.selection.on" : "localhelperutils.menu.selection.off"));
-                })
-                .bounds(cx - 100, y, 200, 20).build());
+                            c.replaceEnabled ? "localhelperutils.menu.replace.on" : "localhelperutils.menu.replace.off"));
+                }).bounds(cx - 100, y, 200, 20).build());
 
-        y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.scan"), b -> {
-            StorageTaskExecutor.get().startScan(mc);
-            mc.setScreen(null);
-        }).bounds(cx - 100, y, 200, 20).build());
-
-        y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.combine"), b -> {
-            StorageTaskExecutor.get().startCombine(mc);
-            mc.setScreen(null);
-        }).bounds(cx - 100, y, 200, 20).build());
-
-        y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.sort"), b -> {
-            StorageTaskExecutor.get().startSort(mc);
-            mc.setScreen(null);
-        }).bounds(cx - 100, y, 200, 20).build());
-
-        y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.categorize"), b -> {
-            StorageTaskExecutor.get().startCategorize(mc);
-            mc.setScreen(null);
-        }).bounds(cx - 100, y, 200, 20).build());
-
-        y += 22;
+        y += 24;
         addRenderableWidget(Button.builder(
-                Component.translatable(cfgFarm()
+                Component.translatable(cfg.farmEnabled
                         ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"),
                 b -> {
                     ModConfig c = ModConfig.get();
@@ -66,6 +42,10 @@ public class MainMenuScreen extends Screen {
                             c.farmEnabled ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"));
                 }).bounds(cx - 100, y, 200, 20).build());
 
+        y += 26;
+        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.storage"), b ->
+                mc.setScreen(new StorageScreen(this))).bounds(cx - 100, y, 200, 20).build());
+
         y += 22;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.search"), b ->
                 mc.setScreen(new SearchScreen())).bounds(cx - 100, y, 200, 20).build());
@@ -74,23 +54,18 @@ public class MainMenuScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.settings"), b ->
                 mc.setScreen(new SettingsScreen(this))).bounds(cx - 100, y, 200, 20).build());
 
-        y += 28;
+        y += 34;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.close"), b ->
                 this.onClose()).bounds(cx - 100, y, 200, 20).build());
-    }
-
-    private static boolean cfgFarm() {
-        return ModConfig.get().farmEnabled;
     }
 
     @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         super.render(gui, mouseX, mouseY, partialTick);
-        int cx = this.width / 2;
-        gui.drawCenteredString(this.font, this.title, cx, 16, 0xFFFFFF);
-        String footer = ModConfig.get().replaceEnabled
-                ? "localhelperutils.menu.footer"
-                : "localhelperutils.menu.footer.off";
-        gui.drawCenteredString(this.font, Component.translatable(footer), cx, this.height - 20, 0x808080);
+        gui.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
+        gui.drawCenteredString(this.font,
+                Component.translatable(ModConfig.get().replaceEnabled
+                        ? "localhelperutils.menu.footer" : "localhelperutils.menu.footer.off"),
+                this.width / 2, this.height - 18, 0x808080);
     }
 }

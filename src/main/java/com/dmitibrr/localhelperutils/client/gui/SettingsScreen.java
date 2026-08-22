@@ -21,15 +21,6 @@ public class SettingsScreen extends Screen {
         ModConfig cfg = ModConfig.get();
 
         addRenderableWidget(Button.builder(
-                status(cfg.replaceEnabled, "localhelperutils.settings.replace"), b -> {
-                    ModConfig c = ModConfig.get();
-                    c.replaceEnabled = !c.replaceEnabled;
-                    c.save();
-                    b.setMessage(status(c.replaceEnabled, "localhelperutils.settings.replace"));
-                }).bounds(cx - 110, y, 220, 20).build());
-
-        y += 22;
-        addRenderableWidget(Button.builder(
                 status(!cfg.replaceWhileSneaking, "localhelperutils.settings.sneak"), b -> {
                     ModConfig c = ModConfig.get();
                     c.replaceWhileSneaking = !c.replaceWhileSneaking;
@@ -37,7 +28,7 @@ public class SettingsScreen extends Screen {
                     b.setMessage(status(!c.replaceWhileSneaking, "localhelperutils.settings.sneak"));
                 }).bounds(cx - 110, y, 220, 20).build());
 
-        y += 22;
+        y += 24;
         addRenderableWidget(Button.builder(
                 Component.translatable("localhelperutils.settings.sort", sortLabel(cfg.sortMode)), b -> {
                     ModConfig c = ModConfig.get();

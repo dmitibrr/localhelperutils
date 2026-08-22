@@ -40,5 +40,8 @@
   "key.localhelperutils.toggle_farm": "Toggle Auto-Farming",
   "key.localhelperutils.add_crop": "Register Aimed Crop",
   "localhelperutils.menu.farm.on": "Auto-Farming: ON",
-  "localhelperutils.menu.farm.off": "Auto-Farming: OFF"
+  "localhelperutils.menu.farm.off": "Auto-Farming: OFF",
+  "localhelperutils.menu.replace.on": "Instant Replacement: ON",
+  "localhelperutils.menu.replace.off": "Instant Replacement: OFF",
+  "localhelperutils.menu.storage": "Storage Order"
 }

@@ -4,6 +4,7 @@ import com.dmitibrr.localhelperutils.LocalHelperUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -78,6 +79,7 @@ public final class ModEvents {
                     && FarmDB.get().getCrop(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString()) != null) {
                 if (FarmHelper.tryHarvest(mc, state, event.getPos(), event.getFace())) {
                     event.setCanceled(true);
+                    event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
                     return;
                 }
             }
@@ -87,10 +89,22 @@ public final class ModEvents {
                 String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
                 if (ModConfig.get().categoryAllowed(blockId)) {
                     String key = ContainerKey.blockKey(mc.level.dimension(), event.getPos());
+                    boolean added;
                     if (!HelperState.selected.remove(key)) {
                         HelperState.selected.add(key);
+                        added = true;
+                    } else {
+                        added = false;
                     }
                     event.setCanceled(true);
+                    event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+                    mc.player.displayClientMessage(Component.literal(
+                            added ? "§a+ Сундукъ въ наборе (" + HelperState.selected.size() + ")"
+                                  : "§7− Сундукъ убранъ (" + HelperState.selected.size() + ")"), true);
+                    mc.player.playSound(
+                            added ? net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP
+                                  : net.minecraft.sounds.SoundEvents.ITEM_BREAK,
+                            0.5f, added ? 1.5f : 0.7f);
                 }
             }
         }
