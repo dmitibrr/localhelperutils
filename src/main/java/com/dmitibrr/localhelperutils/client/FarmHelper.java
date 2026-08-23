@@ -50,9 +50,6 @@ public class FarmHelper {
         String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
         ItemStack hand = mc.player.getMainHandItem();
         String replant = "";
-        if (!hand.isEmpty() && !(hand.getItem() instanceof BlockItem b && b.getBlock().defaultBlockState().isAir())) {
-            // берём id предмета из руки только если это не сам блок-культура? нет — берём как есть
-        }
         if (!hand.isEmpty()) {
             replant = BuiltInRegistries.ITEM.getKey(hand.getItem()).toString();
         }
@@ -82,6 +79,7 @@ public class FarmHelper {
         replantItem = crop.replant == null ? "" : crop.replant;
 
         try {
+            mc.player.swing(InteractionHand.MAIN_HAND);
             mc.gameMode.startDestroyBlock(targetPos, targetFace);
         } catch (Exception e) {
             LocalHelperUtils.LOGGER.debug("Не удалось сломать культуру: {}", e.toString());
@@ -100,8 +98,12 @@ public class FarmHelper {
             case WAIT_AIR -> {
                 if (mc.level.getBlockState(targetPos).isAir()) {
                     beginReplant(mc);
-                } else if (--timer <= 0) {
-                    reset();
+                } else {
+                    try {
+                        mc.gameMode.continueDestroyBlock(targetPos, targetFace);
+                    } catch (Exception ignored) {
+                    }
+                    if (--timer <= 0) reset();
                 }
             }
             case WAIT_REPLANT -> {

@@ -66,12 +66,9 @@ public final class ModEvents {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null || mc.level == null) return;
             BlockState state = mc.level.getBlockState(event.getPos());
-            if (state.getMenuProvider(mc.level, event.getPos()) == null) return;
 
-            HelperState.lastDim = mc.level.dimension();
-            HelperState.lastPos = event.getPos().immutable();
-
-            // Фермерство: ПКМ по готовой культуре из базы — собрать и пересадить
+            // Фермерство: ПКМ по готовой культуре из базы — собрать и пересадить.
+            // ВАЖНО: до проверки на контейнер — культуры не имеют MenuProvider.
             if (!PlacementHelper.SYNTHETIC_USE && StorageTaskExecutor.get().isIdle()
                     && ModConfig.get().farmEnabled && !mc.player.isShiftKeyDown()
                     && FarmHelper.isReady(state)
@@ -82,6 +79,11 @@ public final class ModEvents {
                     return;
                 }
             }
+
+            if (state.getMenuProvider(mc.level, event.getPos()) == null) return;
+
+            HelperState.lastDim = mc.level.dimension();
+            HelperState.lastPos = event.getPos().immutable();
 
             if (StorageTaskExecutor.get().isIdle() && ModConfig.get().selectionMode
                     && !PlacementHelper.SYNTHETIC_USE) {
