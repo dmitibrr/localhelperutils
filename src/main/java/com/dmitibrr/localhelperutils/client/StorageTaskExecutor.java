@@ -90,6 +90,11 @@ public class StorageTaskExecutor {
     private int sortSwaps = 0;
     private int sortCap = 0;
 
+    // сортировка через Inventory Profiles Next
+    private net.minecraft.client.KeyMapping ipnKey = null;
+    private int ipnPhase = 0;
+    private int ipnTimer = 0;
+
     private String what = "";
     private long startedAt = 0;
 
@@ -128,9 +133,14 @@ public class StorageTaskExecutor {
     public void startSort(Minecraft mc) {
         List<String> keys = targetKeys(mc);
         if (keys.isEmpty()) { message(mc, ModLang.fmt("exec.no_containers")); return; }
+        boolean ipn = "ipn".equals(ModConfig.get().sortMode);
         List<Task> t = new ArrayList<>();
-        for (String k : keys) t.add(new Task(k, List.of(new Step("SORT", null))));
-        begin(mc, OpType.SORT, t, ModLang.fmt("op.sort") + " " + ModConfig.get().sortMode);
+        for (String k : keys) t.add(new Task(k, List.of(new Step(ipn ? "IPN_SORT" : "SORT", null))));
+        begin(mc, OpType.SORT, t,
+                ModLang.fmt("op.sort") + " " + ModLang.fmt("settings.sort." + ModConfig.get().sortMode));
+        ipnKey = ipn ? findIpnSortKey() : null;
+        if (ipn && ipnKey == null) message(mc, ModLang.fmt("exec.ipn_missing"));
+        ipnPhase = 0;
     }
 
     public void startCategorize(Minecraft mc) {
@@ -309,6 +319,19 @@ public class StorageTaskExecutor {
                     stepIndex++; // уже отсортировано или лимит
                 }
                 // иначе: триплет в очереди; после его выполнения управление вернётся сюда
+            }
+            case "IPN_SORT" -> {
+                if (ipnKey == null || ipnKey.isUnbound()) {
+                    stepIndex++;
+                } else if (ipnPhase == 0) {
+                    sendKey(ipnKey, org.lwjgl.glfw.GLFW.GLFW_PRESS);
+                    ipnPhase = 1;
+                    ipnTimer = 15;
+                } else if (--ipnTimer <= 0) {
+                    sendKey(ipnKey, org.lwjgl.glfw.GLFW.GLFW_RELEASE);
+                    ipnPhase = 0;
+                    stepIndex++;
+                }
             }
         }
     }
@@ -721,6 +744,35 @@ public class StorageTaskExecutor {
         if (rl == null) return 64;
         var item = BuiltInRegistries.ITEM.get(rl);
         return item == null ? 64 : item.getDefaultInstance().getMaxStackSize();
+    }
+
+    /** Ищем хоткей сортировки у Inventory Profiles Next. */
+    private static net.minecraft.client.KeyMapping findIpnSortKey() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.options == null) return null;
+        for (net.minecraft.client.KeyMapping km : mc.options.keyMappings) {
+            String n = km.getName() == null ? "" : km.getName().toLowerCase();
+            String cat = km.getCategory() == null ? "" : km.getCategory().toLowerCase();
+            if ((n.contains("inventoryprofile") || cat.contains("inventoryprofile")) && n.contains("sort")) {
+                return km;
+            }
+        }
+        return null;
+    }
+
+    private static void sendKey(net.minecraft.client.KeyMapping km, int action) {
+        Minecraft mc = Minecraft.getInstance();
+        try {
+            var k = km.getKey();
+            long window = mc.getWindow().getWindow();
+            switch (k.getType()) {
+                case KEYSYM -> mc.keyboardHandler.keyPress(window, k.getValue(), 0, action, 0);
+                case SCANCODE -> mc.keyboardHandler.keyPress(window,
+                        com.mojang.blaze3d.platform.InputConstants.UNKNOWN.getValue(), k.getValue(), action, 0);
+                default -> { }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void message(Minecraft mc, String msg) {

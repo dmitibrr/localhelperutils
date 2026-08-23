@@ -8,7 +8,9 @@ import net.neoforged.fml.loading.FMLPaths;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ModConfig {
@@ -19,7 +21,10 @@ public class ModConfig {
     public boolean replaceWhileSneaking = false;
     public boolean selectionMode = false;
     public boolean farmEnabled = true;
+    public boolean smartPickup = true;
+    public boolean autoDoors = false;
     public String language = "auto"; // auto | en | ru
+    public Map<String, String> doorRules = new LinkedHashMap<>();
     public Set<String> categories = new LinkedHashSet<>(ALL_CATEGORIES);
     public String sortMode = "name"; // name | tag | mod
     public boolean categorizeByMod = false;
@@ -101,9 +106,12 @@ public class ModConfig {
         sortMode = switch (sortMode) {
             case "name" -> "tag";
             case "tag" -> "mod";
+            case "mod" -> "ipn";
             default -> "name";
         };
     }
+
+    /** auto → en → ru → auto */
 
     /** auto → en → ru → auto */
     public String cycleLanguage() {

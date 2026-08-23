@@ -25,11 +25,27 @@ public class ModKeybinds {
             InputConstants.UNKNOWN.getValue(),
             "category.localhelperutils");
 
+    /** Пометить/снять «важный» предмет под курсором в инвентаре. */
+    public static final KeyMapping MARK_IMPORTANT = new KeyMapping(
+            "key.localhelperutils.mark_important",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.localhelperutils");
+
+    /** Цикл правила авто-дверей для прицеленной двери. */
+    public static final KeyMapping DOOR_RULE = new KeyMapping(
+            "key.localhelperutils.door_rule",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.localhelperutils");
+
     private ModKeybinds() {}
 
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(OPEN_MENU);
         event.register(TOGGLE_FARM);
         event.register(ADD_CROP);
+        event.register(MARK_IMPORTANT);
+        event.register(DOOR_RULE);
     }
 }

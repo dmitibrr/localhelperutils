@@ -15,18 +15,18 @@ public class SearchScreen extends Screen {
     private EditBox box;
 
     public SearchScreen() {
-        super(Component.translatable("localhelperutils.search.title"));
+        super(com.dmitibrr.localhelperutils.client.ModLang.c("search.title"));
     }
 
     @Override
     protected void init() {
         int cx = this.width / 2;
-        this.box = new EditBox(this.font, cx - 120, 40, 240, 20, Component.translatable("localhelperutils.search.field"));
+        this.box = new EditBox(this.font, cx - 120, 40, 240, 20, com.dmitibrr.localhelperutils.client.ModLang.c("search.field"));
         this.box.setResponder(str -> {
             HelperState.searchItem = str.trim().isEmpty() ? null : str.trim().toLowerCase();
         });
         addRenderableWidget(this.box);
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.search.clear"), b -> {
+        addRenderableWidget(Button.builder(com.dmitibrr.localhelperutils.client.ModLang.c("search.clear"), b -> {
             this.box.setValue("");
             HelperState.searchItem = null;
         }).bounds(cx - 100, this.height - 40, 200, 20).build());
@@ -43,7 +43,7 @@ public class SearchScreen extends Screen {
         String q = HelperState.searchItem;
         if (q == null) {
             gui.drawCenteredString(this.font,
-                    Component.translatable("localhelperutils.search.hint"), cx, 70, 0x808080);
+                    com.dmitibrr.localhelperutils.client.ModLang.c("search.hint"), cx, 70, 0x808080);
             return;
         }
         List<String> matches = new ArrayList<>();
@@ -55,7 +55,7 @@ public class SearchScreen extends Screen {
         int y = 70;
         if (matches.isEmpty()) {
             gui.drawCenteredString(this.font,
-                    Component.translatable("localhelperutils.search.none"), cx, y, 0xFF5555);
+                    com.dmitibrr.localhelperutils.client.ModLang.c("search.none"), cx, y, 0xFF5555);
             return;
         }
         int shown = Math.min(matches.size(), 10);

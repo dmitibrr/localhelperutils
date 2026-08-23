@@ -10,54 +10,58 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class MainMenuScreen extends Screen {
+    private static final String[] ROTATION = {
+            "hint.rot.0", "hint.rot.1", "hint.rot.2", "hint.rot.3",
+            "hint.rot.4", "hint.rot.5", "hint.rot.6"
+    };
+
     public MainMenuScreen() {
-        super(Component.translatable("localhelperutils.menu.title"));
+        super(ModLang.c("menu.title"));
     }
 
     @Override
     protected void init() {
         int cx = this.width / 2;
         int y = 26;
-        ModConfig cfg = ModConfig.get();
         Minecraft mc = Minecraft.getInstance();
 
-        addRenderableWidget(Button.builder(
-                Component.translatable(cfg.replaceEnabled
-                        ? "localhelperutils.menu.replace.on" : "localhelperutils.menu.replace.off"),
-                b -> {
-                    ModConfig c = ModConfig.get();
-                    c.replaceEnabled = !c.replaceEnabled;
-                    c.save();
-                    b.setMessage(Component.translatable(
-                            c.replaceEnabled ? "localhelperutils.menu.replace.on" : "localhelperutils.menu.replace.off"));
-                }).bounds(cx - 100, y, 200, 20).build());
+        addRenderableWidget(toggle(y,
+                "menu.replace.on", "menu.replace.off",
+                () -> ModConfig.get().replaceEnabled,
+                c -> c.replaceEnabled = !c.replaceEnabled));
 
         y += 24;
-        addRenderableWidget(Button.builder(
-                Component.translatable(cfg.farmEnabled
-                        ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"),
-                b -> {
-                    ModConfig c = ModConfig.get();
-                    c.farmEnabled = !c.farmEnabled;
-                    c.save();
-                    b.setMessage(Component.translatable(
-                            c.farmEnabled ? "localhelperutils.menu.farm.on" : "localhelperutils.menu.farm.off"));
-                }).bounds(cx - 100, y, 200, 20).build());
+        addRenderableWidget(toggle(y,
+                "menu.farm.on", "menu.farm.off",
+                () -> ModConfig.get().farmEnabled,
+                c -> c.farmEnabled = !c.farmEnabled));
+
+        y += 24;
+        addRenderableWidget(toggle(y,
+                "menu.pickup.on", "menu.pickup.off",
+                () -> ModConfig.get().smartPickup,
+                c -> c.smartPickup = !c.smartPickup));
+
+        y += 24;
+        addRenderableWidget(toggle(y,
+                "menu.doors.on", "menu.doors.off",
+                () -> ModConfig.get().autoDoors,
+                c -> c.autoDoors = !c.autoDoors));
 
         y += 26;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.storage"), b ->
+        addRenderableWidget(Button.builder(ModLang.c("menu.storage"), b ->
                 mc.setScreen(new StorageScreen(this))).bounds(cx - 100, y, 200, 20).build());
 
         y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.search"), b ->
+        addRenderableWidget(Button.builder(ModLang.c("menu.search"), b ->
                 mc.setScreen(new SearchScreen())).bounds(cx - 100, y, 200, 20).build());
 
         y += 22;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.settings"), b ->
+        addRenderableWidget(Button.builder(ModLang.c("menu.settings"), b ->
                 mc.setScreen(new SettingsScreen(this))).bounds(cx - 100, y, 200, 20).build());
 
         y += 22;
-        Button abort = addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.abort"), b -> {
+        Button abort = addRenderableWidget(Button.builder(ModLang.c("menu.abort"), b -> {
             if (StorageTaskExecutor.get().isActive()) {
                 StorageTaskExecutor.get().stop(mc);
                 mc.player.displayClientMessage(ModLang.c("abort.done"), true);
@@ -66,10 +70,18 @@ public class MainMenuScreen extends Screen {
             }
         }).bounds(cx - 100, y, 200, 20).build());
         abort.active = StorageTaskExecutor.get().isActive();
+    }
 
-        y += 34;
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.close"), b ->
-                this.onClose()).bounds(cx - 100, y, 200, 20).build());
+    private Button toggle(int y, String onKey, String offKey,
+                          java.util.function.BooleanSupplier get,
+                          java.util.function.Consumer<ModConfig> flip) {
+        Button b = Button.builder(ModLang.c(get.getAsBoolean() ? onKey : offKey), btn -> {
+            ModConfig c = ModConfig.get();
+            flip.accept(c);
+            c.save();
+            btn.setMessage(ModLang.c(get.getAsBoolean() ? onKey : offKey));
+        }).bounds(this.width / 2 - 100, y, 200, 20).build();
+        return b;
     }
 
     @Override
@@ -80,9 +92,8 @@ public class MainMenuScreen extends Screen {
             gui.drawCenteredString(this.font,
                     ModLang.c("hint.farm"), this.width / 2, this.height - 30, 0x5F9E5F);
         }
+        long idx = (System.currentTimeMillis() / 4000L) % ROTATION.length;
         gui.drawCenteredString(this.font,
-                Component.translatable(ModConfig.get().replaceEnabled
-                        ? "localhelperutils.menu.footer" : "localhelperutils.menu.footer.off"),
-                this.width / 2, this.height - 18, 0x808080);
+                ModLang.c(ROTATION[(int) idx]), this.width / 2, this.height - 18, 0x808080);
     }
 }

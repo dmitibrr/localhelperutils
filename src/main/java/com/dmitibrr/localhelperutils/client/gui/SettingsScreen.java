@@ -1,6 +1,9 @@
 package com.dmitibrr.localhelperutils.client.gui;
 
+import com.dmitibrr.localhelperutils.client.Marks;
 import com.dmitibrr.localhelperutils.client.ModConfig;
+import com.dmitibrr.localhelperutils.client.ModLang;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -10,94 +13,102 @@ public class SettingsScreen extends Screen {
     private final Screen back;
 
     public SettingsScreen(Screen back) {
-        super(Component.translatable("localhelperutils.settings.title"));
+        super(ModLang.c("settings.title"));
         this.back = back;
     }
 
     @Override
     protected void init() {
         int cx = this.width / 2;
-        int y = 30;
-        ModConfig cfg = ModConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+
+        addRenderableWidget(toggle(cx - 115, 28, 110, "settings.sneak",
+                () -> !ModConfig.get().replaceWhileSneaking,
+                c -> c.replaceWhileSneaking = !c.replaceWhileSneaking));
 
         addRenderableWidget(Button.builder(
-                Component.translatable("localhelperutils.settings.language", langLabel(cfg.language)), b -> {
+                Component.literal(ModLang.fmt("settings.language", langLabel(ModConfig.get().language))), b -> {
                     ModConfig c = ModConfig.get();
                     String mode = c.cycleLanguage();
                     c.save();
-                    b.setMessage(Component.translatable("localhelperutils.settings.language", langLabel(mode)));
-                }).bounds(cx - 110, y, 220, 20).build());
+                    b.setMessage(Component.literal(ModLang.fmt("settings.language", langLabel(mode))));
+                }).bounds(cx + 5, 28, 110, 20).build());
 
-        y += 24;
-        addRenderableWidget(Button.builder(
-                status(!cfg.replaceWhileSneaking, "localhelperutils.settings.sneak"), b -> {
-                    ModConfig c = ModConfig.get();
-                    c.replaceWhileSneaking = !c.replaceWhileSneaking;
-                    c.save();
-                    b.setMessage(status(!c.replaceWhileSneaking, "localhelperutils.settings.sneak"));
-                }).bounds(cx - 110, y, 220, 20).build());
+        addRenderableWidget(toggle(cx - 115, 50, 110, "settings.pickup",
+                () -> ModConfig.get().smartPickup,
+                c -> c.smartPickup = !c.smartPickup));
 
-        y += 24;
+        addRenderableWidget(toggle(cx + 5, 50, 110, "settings.doors",
+                () -> ModConfig.get().autoDoors,
+                c -> c.autoDoors = !c.autoDoors));
+
+        Button marksBtn = addRenderableWidget(Button.builder(
+                Component.literal(ModLang.fmt("settings.marks", Marks.get().items().size())), b -> { }).bounds(cx - 115, 72, 110, 20).build());
+        marksBtn.active = false;
+
         addRenderableWidget(Button.builder(
-                Component.translatable("localhelperutils.settings.sort", sortLabel(cfg.sortMode)), b -> {
-                    ModConfig c = ModConfig.get();
-                    c.cycleSortMode();
-                    c.save();
-                    b.setMessage(Component.translatable("localhelperutils.settings.sort", sortLabel(c.sortMode)));
-                }).bounds(cx - 110, y, 220, 20).build());
+                Component.literal(ModLang.fmt("settings.marks_clear")), b -> {
+                    int n = Marks.get().clear();
+                    mc.player.displayClientMessage(ModLang.c("storage.cleared_marks", n), true);
+                    mc.setScreen(new SettingsScreen(back)); // пересобрать
+                }).bounds(cx + 5, 72, 110, 20).build());
 
         String[] cats = {"chest", "barrel", "shulker", "ender", "functional", "modded"};
         for (int i = 0; i < cats.length; i++) {
             String cat = cats[i];
-            int col = i % 2;
-            int row = i / 2;
-            int bx = cx - 115 + col * 120;
-            int by = 120 + row * 22;
+            int col = i % 3;
+            int row = i / 3;
+            int bx = cx - 115 + col * 78;
+            int by = 118 + row * 22;
             addRenderableWidget(Button.builder(catButton(cat), b -> {
                 ModConfig c = ModConfig.get();
                 c.toggleCategory(cat);
                 c.save();
                 b.setMessage(catButton(cat));
-            }).bounds(bx, by, 115, 20).build());
+            }).bounds(bx, by, 73, 20).build());
         }
 
-        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.back"), b ->
-                this.minecraft.setScreen(back)).bounds(cx - 110, 210, 220, 20).build());
+        addRenderableWidget(Button.builder(ModLang.c("menu.back"), b ->
+                this.minecraft.setScreen(back)).bounds(cx - 100, 200, 200, 20).build());
+    }
+
+    private Button toggle(int x, int y, int w, String key,
+                          java.util.function.BooleanSupplier get,
+                          java.util.function.Consumer<ModConfig> flip) {
+        return Button.builder(status(get.getAsBoolean(), key), btn -> {
+            ModConfig c = ModConfig.get();
+            flip.accept(c);
+            c.save();
+            btn.setMessage(status(get.getAsBoolean(), key));
+        }).bounds(x, y, w, 20).build();
     }
 
     private static Component catButton(String cat) {
         ModConfig c = ModConfig.get();
-        return Component.translatable("localhelperutils.settings.cat." + cat,
+        return Component.literal(ModLang.fmt("settings.cat." + cat,
                 c.categories.contains(cat)
-                        ? Component.translatable("localhelperutils.settings.yes")
-                        : Component.translatable("localhelperutils.settings.no"));
+                        ? ModLang.fmt("settings.yes")
+                        : ModLang.fmt("settings.no")));
     }
 
     private static Component status(boolean on, String key) {
-        return Component.translatable(key,
-                on ? Component.translatable("localhelperutils.settings.yes")
-                    : Component.translatable("localhelperutils.settings.no"));
+        return Component.literal(ModLang.fmt(key,
+                on ? ModLang.fmt("settings.yes") : ModLang.fmt("settings.no")));
     }
 
-    private static String sortLabel(String mode) {
-        return "localhelperutils.settings.sort." + mode;
-    }
-
-    private static Component langLabel(String mode) {
-        String key = switch (mode == null ? "auto" : mode) {
-            case "en" -> "localhelperutils.settings.lang.en";
-            case "ru" -> "localhelperutils.settings.lang.ru";
-            default -> "localhelperutils.settings.lang.auto";
+    private static String langLabel(String mode) {
+        return switch (mode == null ? "auto" : mode) {
+            case "en" -> ModLang.fmt("settings.lang.en");
+            case "ru" -> ModLang.fmt("settings.lang.ru");
+            default -> ModLang.fmt("settings.lang.auto");
         };
-        return Component.translatable(key);
     }
 
     @Override
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         super.render(gui, mouseX, mouseY, partialTick);
-        int cx = this.width / 2;
-        gui.drawCenteredString(this.font, this.title, cx, 12, 0xFFFFFF);
-        gui.drawCenteredString(this.font,
-                Component.translatable("localhelperutils.settings.categories"), cx, 110, 0xAAAAAA);
+        gui.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
+        gui.drawCenteredString(this.font, ModLang.c("settings.categories"),
+                this.width / 2, 106, 0xAAAAAA);
     }
 }

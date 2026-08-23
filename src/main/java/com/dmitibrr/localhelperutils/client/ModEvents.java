@@ -57,7 +57,12 @@ public final class ModEvents {
             }
             PlacementHelper.tick(mc);
             FarmHelper.tick(mc);
+            SmartPickup.tick(mc);
+            AutoDoors.tick(mc);
             StorageTaskExecutor.get().tick(mc);
+            while (ModKeybinds.DOOR_RULE.consumeClick()) {
+                AutoDoors.cycleAimedRule(mc);
+            }
         }
 
         @net.neoforged.bus.api.SubscribeEvent
@@ -130,6 +135,82 @@ public final class ModEvents {
         @net.neoforged.bus.api.SubscribeEvent
         public static void onRenderLevel(RenderLevelStageEvent event) {
             WorldHighlightRenderer.render(event);
+        }
+
+        @net.neoforged.bus.api.SubscribeEvent
+        public static void onScreenKey(net.neoforged.neoforge.client.event.ScreenEvent.KeyPressed.Post event) {
+            if (!(event.getScreen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) {
+                return;
+            }
+            var hovered = hoveredSlotOf(cs);
+            if (hovered == null || hovered.getItem().isEmpty()) return;
+            if (!ModKeybinds.MARK_IMPORTANT.matches(event.getKeyCode(), event.getScanCode())) return;
+            String key = ItemKey.stackKey(hovered.getItem());
+            boolean added = Marks.get().toggle(key);
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                mc.player.displayClientMessage(ModLang.c(
+                        added ? "marks.added" : "marks.removed",
+                        ItemKey.shortName(key)), true);
+            }
+            event.setCanceled(true);
+        }
+
+        @net.neoforged.bus.api.SubscribeEvent
+        public static void onScreenRender(net.neoforged.neoforge.client.event.ScreenEvent.Render.Post event) {
+            if (!(event.getScreen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) {
+                return;
+            }
+            var marks = Marks.get().items();
+            if (marks.isEmpty()) return;
+            int[] origin = screenOrigin(cs);
+            if (origin == null) return;
+            var gui = event.getGuiGraphics();
+            for (var sl : cs.getMenu().slots) {
+                ItemStack st = sl.getItem();
+                if (st.isEmpty()) continue;
+                if (!Marks.get().isMarked(ItemKey.stackKey(st))) continue;
+                int x = origin[0] + sl.x - 1, y = origin[1] + sl.y - 1;
+                gui.fill(x, y, x + 18, y + 1, 0xFFFFD24A);
+                gui.fill(x, y + 17, x + 18, y + 18, 0xFFFFD24A);
+                gui.fill(x, y, x + 1, y + 18, 0xFFFFD24A);
+                gui.fill(x + 17, y, x + 18, y + 18, 0xFFFFD24A);
+                gui.fill(x + 1, y + 1, x + 17, y + 17, 0x28FFD24A);
+            }
+        }
+
+        private static java.lang.reflect.Field LEFT_POS, TOP_POS, HOVERED;
+
+        @SuppressWarnings("unchecked")
+        private static net.minecraft.world.inventory.Slot hoveredSlotOf(
+                net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs) {
+            try {
+                if (HOVERED == null) {
+                    HOVERED = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class
+                            .getDeclaredField("hoveredSlot");
+                    HOVERED.setAccessible(true);
+                }
+                return (net.minecraft.world.inventory.Slot) HOVERED.get(cs);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private static int[] screenOrigin(net.minecraft.client.gui.screens.Screen scr) {
+            try {
+                if (LEFT_POS == null) {
+                    LEFT_POS = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class
+                            .getDeclaredField("leftPos");
+                    TOP_POS = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class
+                            .getDeclaredField("topPos");
+                    LEFT_POS.setAccessible(true);
+                    TOP_POS.setAccessible(true);
+                }
+                return new int[]{LEFT_POS.getInt(scr), TOP_POS.getInt(scr)};
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @net.neoforged.bus.api.SubscribeEvent
