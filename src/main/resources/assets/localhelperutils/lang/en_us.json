@@ -112,5 +112,20 @@
   "hint.rot.3": "16 + 17 = 33. The mod does math so you do not have to.",
   "hint.rot.4": "Doors open when you walk up, close when you leave. Politeness, automated.",
   "hint.rot.5": "Not a cheat — just very good manners toward the server.",
-  "hint.rot.6": "Tip: bind all keys in Controls → Local Player Help Utils."
+  "hint.rot.6": "Tip: bind all keys in Controls → Local Player Help Utils.",
+  "key.localhelperutils.autoclicker": "Toggle Smart Autoclicker",
+  "key.localhelperutils.autolog": "Cycle Auto-Logout Mode",
+  "ac.on": "Smart autoclicker ON. Move or turn the camera and it stops.",
+  "ac.off": "Smart autoclicker OFF.",
+  "ac.disabled_move": "Autoclicker stopped: you moved.",
+  "ac.disabled_mouse": "Autoclicker stopped: camera turned.",
+  "ac.swapped": "Weapon swapped (%s durability left).",
+  "ac.fist": "No weapons left — punching with bare hands.",
+  "ac.no_weapons": "No weapons and no space — autoclicker stopped.",
+  "al.mode": "Auto-logout: %s",
+  "al.mode.OFF": "off",
+  "al.mode.ON_DAMAGE": "on any damage",
+  "al.mode.LOW_HP": "at 2 hearts",
+  "al.bye_damage": "Auto-logout: took damage!",
+  "al.bye_lowhp": "Auto-logout: 2 hearts!"
 }

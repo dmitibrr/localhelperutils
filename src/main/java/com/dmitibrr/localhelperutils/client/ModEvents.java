@@ -63,6 +63,14 @@ public final class ModEvents {
             while (ModKeybinds.DOOR_RULE.consumeClick()) {
                 AutoDoors.cycleAimedRule(mc);
             }
+            while (ModKeybinds.AUTOCLICKER.consumeClick()) {
+                AutoClicker.toggle(mc);
+            }
+            while (ModKeybinds.AUTOLOG.consumeClick()) {
+                AutoLog.cycle(mc);
+            }
+            AutoClicker.tick(mc);
+            AutoLog.tick(mc);
         }
 
         @net.neoforged.bus.api.SubscribeEvent

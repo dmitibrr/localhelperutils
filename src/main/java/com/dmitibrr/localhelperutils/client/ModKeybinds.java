@@ -39,6 +39,20 @@ public class ModKeybinds {
             InputConstants.UNKNOWN.getValue(),
             "category.localhelperutils");
 
+    /** Умный автокликер для мободробилки. */
+    public static final KeyMapping AUTOCLICKER = new KeyMapping(
+            "key.localhelperutils.autoclicker",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.localhelperutils");
+
+    /** Цикл режима автовыхода. */
+    public static final KeyMapping AUTOLOG = new KeyMapping(
+            "key.localhelperutils.autolog",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            "category.localhelperutils");
+
     private ModKeybinds() {}
 
     public static void register(RegisterKeyMappingsEvent event) {
@@ -47,5 +61,7 @@ public class ModKeybinds {
         event.register(ADD_CROP);
         event.register(MARK_IMPORTANT);
         event.register(DOOR_RULE);
+        event.register(AUTOCLICKER);
+        event.register(AUTOLOG);
     }
 }
