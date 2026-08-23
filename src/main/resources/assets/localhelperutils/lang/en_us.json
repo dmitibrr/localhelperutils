@@ -79,5 +79,12 @@
   "settings.lang.auto": "Auto",
   "settings.lang.en": "English",
   "settings.lang.ru": "Russian (old orthography)",
-  "hint.farm": "§fFarm tip: §raim at a crop holding its seeds and press the Register Crop key (see Controls)"
+  "hint.farm": "§fFarm tip: §raim at a crop holding its seeds and press the Register Crop key (see Controls)",
+  "op.scan": "Chest scan",
+  "op.combine": "Stack merging",
+  "op.sort": "Sorting by",
+  "op.categorize": "Sorting by mods",
+  "exec.buffer_leftover": "§7(Left in inventory: %s stacks)",
+  "exec.sort_giveup": "Sorting stalled (too many swaps), skipping container.",
+  "exec.merge_no_place_all": "Some items had no place to go and stayed in your inventory."
 }
