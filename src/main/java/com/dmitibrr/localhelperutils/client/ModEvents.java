@@ -150,8 +150,7 @@ public final class ModEvents {
                 if (s.container == mc.player.getInventory()) continue;
                 ItemStack st = s.getItem();
                 if (!st.isEmpty()) {
-                    String id = BuiltInRegistries.ITEM.getKey(st.getItem()).toString();
-                    items.merge(id, st.getCount(), Integer::sum);
+                    items.merge(ItemKey.stackKey(st), st.getCount(), Integer::sum);
                 }
             }
             StorageDB.Entry e = StorageDB.get().getEntry(key);

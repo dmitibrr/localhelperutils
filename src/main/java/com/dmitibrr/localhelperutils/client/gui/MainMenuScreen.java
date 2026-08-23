@@ -76,6 +76,10 @@ public class MainMenuScreen extends Screen {
     public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         super.render(gui, mouseX, mouseY, partialTick);
         gui.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
+        if (ModConfig.get().farmEnabled) {
+            gui.drawCenteredString(this.font,
+                    ModLang.c("hint.farm"), this.width / 2, this.height - 30, 0x5F9E5F);
+        }
         gui.drawCenteredString(this.font,
                 Component.translatable(ModConfig.get().replaceEnabled
                         ? "localhelperutils.menu.footer" : "localhelperutils.menu.footer.off"),

@@ -62,8 +62,11 @@ public class SearchScreen extends Screen {
         for (int i = 0; i < shown; i++) {
             String item = matches.get(i);
             int count = StorageDB.get().findContainers(item).size();
+            String label = com.dmitibrr.localhelperutils.client.ItemKey.shortName(item)
+                    + (com.dmitibrr.localhelperutils.client.ItemKey.hasComponents(item)
+                        ? " §8[nbt]" : "");
             gui.drawCenteredString(this.font,
-                    Component.literal("§e" + item + "§7 — " + count + " конт."), cx, y, 0xFFFFFF);
+                    Component.literal("§e" + label + "§7 — " + count + " конт."), cx, y, 0xFFFFFF);
             y += 12;
         }
         if (matches.size() > shown) {

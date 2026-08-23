@@ -78,5 +78,6 @@
   "settings.language": "Mod Language: %s",
   "settings.lang.auto": "Auto",
   "settings.lang.en": "English",
-  "settings.lang.ru": "Russian (old orthography)"
+  "settings.lang.ru": "Russian (old orthography)",
+  "hint.farm": "§fFarm tip: §raim at a crop holding its seeds and press the Register Crop key (see Controls)"
 }

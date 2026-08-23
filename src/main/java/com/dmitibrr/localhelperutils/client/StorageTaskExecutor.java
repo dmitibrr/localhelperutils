@@ -665,7 +665,7 @@ public class StorageTaskExecutor {
     }
 
     private static String itemId(ItemStack st) {
-        return BuiltInRegistries.ITEM.getKey(st.getItem()).toString();
+        return ItemKey.stackKey(st);
     }
 
     private static int compare(ItemStack a, ItemStack b, String mode) {
@@ -744,7 +744,7 @@ public class StorageTaskExecutor {
             if (e == null) continue;
             Map<String, Integer> perMod = new LinkedHashMap<>();
             for (String item : e.items.keySet()) {
-                String mod = item.split(":", 2)[0];
+                String mod = ItemKey.shortName(item).split(":", 2)[0];
                 perMod.merge(mod, e.items.get(item), Integer::sum);
             }
             for (Map.Entry<String, Integer> m : perMod.entrySet()) {
@@ -759,7 +759,7 @@ public class StorageTaskExecutor {
             StorageDB.Entry e = StorageDB.get().getEntry(k);
             if (e == null) continue;
             for (String item : e.items.keySet()) {
-                String mod = item.split(":", 2)[0];
+                String mod = ItemKey.shortName(item).split(":", 2)[0];
                 String home = homeByMod.get(mod);
                 if (home == null || home.equals(k)) continue;
                 int count = e.items.get(item);
@@ -769,8 +769,9 @@ public class StorageTaskExecutor {
         return ops;
     }
 
-    private int maxStackOf(String itemId) {
-        var rl = net.minecraft.resources.ResourceLocation.tryParse(itemId);
+    private int maxStackOf(String key) {
+        String bare = ItemKey.shortName(key);
+        var rl = net.minecraft.resources.ResourceLocation.tryParse(bare);
         if (rl == null) return 64;
         var item = BuiltInRegistries.ITEM.get(rl);
         if (item == null) return 64;
