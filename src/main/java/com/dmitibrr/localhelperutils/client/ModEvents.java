@@ -49,9 +49,8 @@ public final class ModEvents {
                 ModConfig cfg = ModConfig.get();
                 cfg.farmEnabled = !cfg.farmEnabled;
                 cfg.save();
-                mc.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal(
-                                cfg.farmEnabled ? "§aФермерство: вкл" : "§7Фермерство: выкл"), true);
+                mc.player.displayClientMessage(ModLang.c(
+                        cfg.farmEnabled ? "farm.on" : "farm.off"), true);
             }
             while (ModKeybinds.ADD_CROP.consumeClick()) {
                 FarmHelper.recordAimedCrop(mc);
@@ -98,9 +97,8 @@ public final class ModEvents {
                     }
                     event.setCanceled(true);
                     event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
-                    mc.player.displayClientMessage(Component.literal(
-                            added ? "§a+ Сундукъ въ наборе (" + HelperState.selected.size() + ")"
-                                  : "§7− Сундукъ убранъ (" + HelperState.selected.size() + ")"), true);
+                    mc.player.displayClientMessage(com.dmitibrr.localhelperutils.client.ModLang.c(
+                            added ? "sel.added" : "sel.removed", HelperState.selected.size()), true);
                     mc.player.playSound(
                             added ? net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP
                                   : net.minecraft.sounds.SoundEvents.ITEM_BREAK,

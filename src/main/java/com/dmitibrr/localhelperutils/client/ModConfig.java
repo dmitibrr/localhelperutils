@@ -19,6 +19,7 @@ public class ModConfig {
     public boolean replaceWhileSneaking = false;
     public boolean selectionMode = false;
     public boolean farmEnabled = true;
+    public String language = "auto"; // auto | en | ru
     public Set<String> categories = new LinkedHashSet<>(ALL_CATEGORIES);
     public String sortMode = "name"; // name | tag | mod
     public boolean categorizeByMod = false;
@@ -102,5 +103,16 @@ public class ModConfig {
             case "tag" -> "mod";
             default -> "name";
         };
+    }
+
+    /** auto → en → ru → auto */
+    public String cycleLanguage() {
+        language = switch (language == null ? "auto" : language) {
+            case "auto" -> "en";
+            case "en" -> "ru";
+            default -> "auto";
+        };
+        ModLang.reload();
+        return language;
     }
 }

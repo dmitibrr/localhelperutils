@@ -58,6 +58,30 @@ public class StorageScreen extends Screen {
         }).bounds(cx - 100, y, 200, 20).build());
 
         y += 30;
+        boolean running = StorageTaskExecutor.get().isActive();
+
+        Button abort = addRenderableWidget(Button.builder(
+                Component.translatable("localhelperutils.menu.abort"), b -> {
+                    if (StorageTaskExecutor.get().isActive()) {
+                        StorageTaskExecutor.get().stop(mc);
+                        mc.player.displayClientMessage(
+                                com.dmitibrr.localhelperutils.client.ModLang.c("abort.done"), true);
+                    } else {
+                        mc.player.displayClientMessage(
+                                com.dmitibrr.localhelperutils.client.ModLang.c("abort.none"), true);
+                    }
+                }).bounds(cx - 100, y, 97, 20).build());
+        abort.active = running;
+
+        addRenderableWidget(Button.builder(Component.translatable("localhelperutils.storage.clear"), b -> {
+            int n = com.dmitibrr.localhelperutils.client.HelperState.selected.size();
+            com.dmitibrr.localhelperutils.client.HelperState.selected.clear();
+            mc.player.displayClientMessage(
+                    com.dmitibrr.localhelperutils.client.ModLang.c("storage.cleared", n), true);
+            b.setMessage(Component.translatable("localhelperutils.storage.clear"));
+        }).bounds(cx + 3, y, 97, 20).build());
+
+        y += 26;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.back"), b ->
                 mc.setScreen(back)).bounds(cx - 100, y, 200, 20).build());
     }

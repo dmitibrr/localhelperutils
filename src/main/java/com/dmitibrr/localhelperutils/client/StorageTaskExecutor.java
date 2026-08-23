@@ -119,7 +119,7 @@ public class StorageTaskExecutor {
     public void startScan(Minecraft mc) {
         List<String> keys = targetKeys(mc, false);
         if (keys.isEmpty()) {
-            message(mc, "Нѣтъ сундуковъ: сперва выберите ихъ въ режимѣ выбора.");
+            message(mc, ModLang.fmt("exec.no_containers"));
             return;
         }
         List<Task> t = new ArrayList<>();
@@ -132,12 +132,12 @@ public class StorageTaskExecutor {
     public void startCombine(Minecraft mc) {
         List<String> keys = targetKeys(mc, false);
         if (keys.isEmpty()) {
-            message(mc, "Нѣтъ сундуковъ: сперва выберите ихъ въ режимѣ выбора.");
+            message(mc, ModLang.fmt("exec.no_containers"));
             return;
         }
         List<MoveOp> ops = planCombine(mc, keys);
         if (ops.isEmpty()) {
-            message(mc, "Не нашлось неполныхъ стаковъ для совмѣщенія.");
+            message(mc, ModLang.fmt("exec.combine_none"));
             return;
         }
         List<Task> t = new ArrayList<>();
@@ -151,7 +151,7 @@ public class StorageTaskExecutor {
     public void startSort(Minecraft mc) {
         List<String> keys = targetKeys(mc, false);
         if (keys.isEmpty()) {
-            message(mc, "Нѣтъ сундуковъ: сперва выберите ихъ въ режимѣ выбора.");
+            message(mc, ModLang.fmt("exec.no_containers"));
             return;
         }
         List<Task> t = new ArrayList<>();
@@ -164,12 +164,12 @@ public class StorageTaskExecutor {
     public void startCategorize(Minecraft mc) {
         List<String> keys = targetKeys(mc, false);
         if (keys.isEmpty()) {
-            message(mc, "Нѣтъ сундуковъ: сперва выберите ихъ въ режимѣ выбора.");
+            message(mc, ModLang.fmt("exec.no_containers"));
             return;
         }
         List<MoveOp> ops = planCategorize(mc, keys);
         if (ops.isEmpty()) {
-            message(mc, "Все уже лежитъ по своимъ модамъ.");
+            message(mc, ModLang.fmt("exec.categ_done"));
             return;
         }
         List<Task> t = new ArrayList<>();
@@ -198,7 +198,7 @@ public class StorageTaskExecutor {
         this.aborted = false;
         this.startedAt = System.currentTimeMillis();
         this.phase = Phase.PICK_NEXT;
-        message(mc, what + " начато. " + tasks.size() + " шаговъ.");
+        message(mc, ModLang.fmt("exec.started", what, tasks.size()));
     }
 
     public void stop() {
@@ -209,6 +209,17 @@ public class StorageTaskExecutor {
         phase = Phase.PICK_NEXT;
         clickQueuesReset();
         status = "";
+    }
+
+    /** Прерывание из меню: закрываем и контейнер, если мод его открыл. */
+    public void stop(Minecraft mc) {
+        boolean wasActive = isActive();
+        stop();
+        if (wasActive && mc != null && mc.player != null
+                && mc.screen instanceof AbstractContainerScreen<?>) {
+            mc.player.closeContainer();
+            tickDelay = 10;
+        }
     }
 
     private void clickQueuesReset() {
@@ -265,17 +276,17 @@ public class StorageTaskExecutor {
     private void waitNear(Minecraft mc) {
         BlockPos pos = ContainerKey.parsePos(currentTask.key);
         if (pos == null) {
-            advance(mc, "Пропущенъ неизвѣстный контейнеръ.");
+            advance(mc, ModLang.fmt("exec.skip_unknown"));
             return;
         }
         double d = distTo(mc, pos);
         if (mc.screen == null && d <= 16.0) {
             openTimeout = 0;
-            status = "Открываю...";
+            status = ModLang.fmt("exec.opening");
             openContainer(mc, pos);
             phase = Phase.WAIT_OPEN;
         } else {
-            status = "Подойдите къ контейнеру (" + (int) Math.sqrt(d) + " м)";
+            status = ModLang.fmt("exec.approach", (int) Math.sqrt(d));
         }
     }
 
@@ -284,16 +295,16 @@ public class StorageTaskExecutor {
         if (mc.screen instanceof AbstractContainerScreen<?>) {
             tickDelay = 5; // ждём загрузки слотов
             phase = Phase.WORKING;
-            status = "Работаю...";
+            status = ModLang.fmt("exec.working");
         } else if (openTimeout > 80) {
-            advance(mc, "Не удалось открыть контейнеръ.");
+            advance(mc, ModLang.fmt("exec.open_fail"));
         }
     }
 
     private void working(Minecraft mc) {
         if (!(mc.screen instanceof AbstractContainerScreen<?>)) {
             phase = Phase.WAIT_NEAR;
-            status = "Экранъ закрылся, повторяю...";
+            status = ModLang.fmt("exec.screen_closed");
             return;
         }
         AbstractContainerMenu menu = mc.player.containerMenu;
@@ -301,20 +312,24 @@ public class StorageTaskExecutor {
             mc.player.closeContainer();
             tickDelay = 6;
             phase = Phase.CLOSING;
-            status = "Закрываю...";
+            status = ModLang.fmt("exec.closing");
             return;
         }
 
-        if (activeSeq != null) {
+        boolean busy = activeSeq != null || !pickupQueue.isEmpty() || !quickMoveQueue.isEmpty();
+
+        if (busy) {
+            if (activeSeq == null && !menu.getCarried().isEmpty()) {
+                return; // ждём, пока курсор опустеет перед новой последовательностью
+            }
             performClick(mc, menu);
             return;
+        }
+        if (!menu.getCarried().isEmpty()) {
+            return; // последний клик ещё не подтверждён
         }
         if (verifyPending) {
             verifyStep(mc, menu);
-            return;
-        }
-        if (!menu.getCarried().isEmpty() || !pickupQueue.isEmpty() || !quickMoveQueue.isEmpty()) {
-            performClick(mc, menu);
             return;
         }
 
@@ -327,7 +342,7 @@ public class StorageTaskExecutor {
             case "EXTRACT" -> {
                 buildExtract(menu, s);
                 if (quickMoveQueue.isEmpty()) {
-                    advance(mc, "Не удалось забрать предметы (нетъ мѣста въ инвентарѣ?).");
+                    advance(mc, ModLang.fmt("exec.extract_fail"));
                 } else {
                     bufferedItem = s.item;
                     bufferedExpected = s.count;
@@ -338,7 +353,7 @@ public class StorageTaskExecutor {
             case "MERGE" -> {
                 buildMerge(menu, s);
                 if (pickupQueue.isEmpty() && activeSeq == null) {
-                    message(mc, "Не удалось сложить " + s.item + " (нѣтъ мѣста?).");
+                    message(mc, ModLang.fmt("exec.merge_no_place", s.item));
                     stepIndex++;
                 } else {
                     bufferedItem = s.item;
@@ -395,7 +410,7 @@ public class StorageTaskExecutor {
                 if (invCount > 0) {
                     stepIndex++;
                 } else {
-                    advance(mc, "Не удалось забрать " + bufferedItem + " (инвентарь полонъ?).");
+                    advance(mc, ModLang.fmt("exec.extract_fail_inv", bufferedItem));
                 }
             }
             case "MERGE" -> {
@@ -403,7 +418,7 @@ public class StorageTaskExecutor {
                 if (invCount == 0) {
                     stepIndex++;
                 } else {
-                    message(mc, "Остатокъ " + invCount + " шт. " + bufferedItem + " остался въ инвентарѣ.");
+                    message(mc, ModLang.fmt("exec.merge_leftover", invCount, bufferedItem));
                     stepIndex++;
                 }
             }
@@ -422,7 +437,7 @@ public class StorageTaskExecutor {
     private void finish(Minecraft mc) {
         long ms = System.currentTimeMillis() - startedAt;
         StorageDB.get().save();
-        String msg = "Готово за " + (ms / 1000) + " с.";
+        String msg = ModLang.fmt("exec.done", ms / 1000);
         message(mc, msg);
         stop();
     }
@@ -444,7 +459,7 @@ public class StorageTaskExecutor {
             if (inCurrentDim(currentTask.key)) {
                 phase = Phase.WAIT_NEAR;
             } else {
-                advance(mc, "Пропущенъ контейнеръ въ другомъ измереніи.");
+                advance(mc, ModLang.fmt("exec.other_dim"));
             }
         }
     }
@@ -765,7 +780,7 @@ public class StorageTaskExecutor {
     private void message(Minecraft mc, String msg) {
         if (mc.player == null) return;
         mc.player.displayClientMessage(
-                net.minecraft.network.chat.Component.literal("§6[Помощникъ]§r " + msg), false);
+                net.minecraft.network.chat.Component.literal(ModLang.fmt("helper.prefix") + " " + msg), false);
         LocalHelperUtils.LOGGER.info("[localhelperutils] {}", msg);
     }
 }

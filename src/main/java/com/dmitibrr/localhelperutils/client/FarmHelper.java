@@ -57,7 +57,8 @@ public class FarmHelper {
             replant = BuiltInRegistries.ITEM.getKey(hand.getItem()).toString();
         }
         FarmDB.get().put(blockId, replant);
-        msg(mc, "§aЗаписано: §f" + blockId + "§a → сажать §e" + (replant.isEmpty() ? "(ничего)" : replant));
+        msg(mc, ModLang.fmt("farm.recorded", blockId,
+                replant.isEmpty() ? ModLang.fmt("farm.nothing") : replant));
     }
 
     /**
@@ -170,7 +171,7 @@ public class FarmHelper {
 
     private static void msg(Minecraft mc, String text) {
         if (mc.player != null) {
-            mc.player.displayClientMessage(Component.literal("§6[Помощникъ]§r " + text), false);
+            mc.player.displayClientMessage(Component.literal(ModLang.fmt("helper.prefix") + " " + text), false);
         }
         LocalHelperUtils.LOGGER.info("[localhelperutils] {}", text);
     }

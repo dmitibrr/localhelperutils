@@ -79,14 +79,13 @@ public final class WorldHighlightRenderer {
                 BlockPos pos = ContainerKey.parsePos(k);
                 if (pos != null && mc.level != null) {
                     int dist = (int) Math.sqrt(mc.player.blockPosition().distSqr(pos));
-                    gui.drawCenteredString(mc.font, "§eЦель: " + dist + " м", cx, y, 0xFFFFFF);
+                    gui.drawCenteredString(mc.font, ModLang.fmt("hud.goal", dist), cx, y, 0xFFFFFF);
                 }
             }
             return;
         }
         if (ModConfig.get().selectionMode) {
-            gui.drawCenteredString(mc.font,
-                    "§aРежимъ выбора: " + HelperState.selected.size() + " сундуковъ", cx, y, 0xFFFFFF);
+            gui.drawCenteredString(mc.font, ModLang.fmt("hud.selection", HelperState.selected.size()), cx, y, 0xFFFFFF);
         }
     }
 

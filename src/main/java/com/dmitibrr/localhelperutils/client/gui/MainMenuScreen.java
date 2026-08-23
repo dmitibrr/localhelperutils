@@ -1,6 +1,8 @@
 package com.dmitibrr.localhelperutils.client.gui;
 
 import com.dmitibrr.localhelperutils.client.ModConfig;
+import com.dmitibrr.localhelperutils.client.ModLang;
+import com.dmitibrr.localhelperutils.client.StorageTaskExecutor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -53,6 +55,17 @@ public class MainMenuScreen extends Screen {
         y += 22;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.settings"), b ->
                 mc.setScreen(new SettingsScreen(this))).bounds(cx - 100, y, 200, 20).build());
+
+        y += 22;
+        Button abort = addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.abort"), b -> {
+            if (StorageTaskExecutor.get().isActive()) {
+                StorageTaskExecutor.get().stop(mc);
+                mc.player.displayClientMessage(ModLang.c("abort.done"), true);
+            } else {
+                mc.player.displayClientMessage(ModLang.c("abort.none"), true);
+            }
+        }).bounds(cx - 100, y, 200, 20).build());
+        abort.active = StorageTaskExecutor.get().isActive();
 
         y += 34;
         addRenderableWidget(Button.builder(Component.translatable("localhelperutils.menu.close"), b ->

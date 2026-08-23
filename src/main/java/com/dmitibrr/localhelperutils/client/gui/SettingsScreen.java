@@ -21,6 +21,15 @@ public class SettingsScreen extends Screen {
         ModConfig cfg = ModConfig.get();
 
         addRenderableWidget(Button.builder(
+                Component.translatable("localhelperutils.settings.language", langLabel(cfg.language)), b -> {
+                    ModConfig c = ModConfig.get();
+                    String mode = c.cycleLanguage();
+                    c.save();
+                    b.setMessage(Component.translatable("localhelperutils.settings.language", langLabel(mode)));
+                }).bounds(cx - 110, y, 220, 20).build());
+
+        y += 24;
+        addRenderableWidget(Button.builder(
                 status(!cfg.replaceWhileSneaking, "localhelperutils.settings.sneak"), b -> {
                     ModConfig c = ModConfig.get();
                     c.replaceWhileSneaking = !c.replaceWhileSneaking;
@@ -72,6 +81,15 @@ public class SettingsScreen extends Screen {
 
     private static String sortLabel(String mode) {
         return "localhelperutils.settings.sort." + mode;
+    }
+
+    private static Component langLabel(String mode) {
+        String key = switch (mode == null ? "auto" : mode) {
+            case "en" -> "localhelperutils.settings.lang.en";
+            case "ru" -> "localhelperutils.settings.lang.ru";
+            default -> "localhelperutils.settings.lang.auto";
+        };
+        return Component.translatable(key);
     }
 
     @Override
