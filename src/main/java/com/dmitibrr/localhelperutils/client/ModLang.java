@@ -48,6 +48,7 @@ public final class ModLang {
     public static String tr(String key) {
         if (map.isEmpty()) reload();
         String s = map.get(key);
+        if (s == null) s = map.get("localhelperutils." + key);
         return s != null ? s : key;
     }
 
