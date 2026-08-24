@@ -66,6 +66,9 @@ public final class ModEvents {
             while (ModKeybinds.AUTOCLICKER.consumeClick()) {
                 AutoClicker.toggle(mc);
             }
+            while (ModKeybinds.MARK_IMPORTANT.consumeClick()) {
+                if (mc.screen == null) markAimedWorldItem(mc);
+            }
             while (ModKeybinds.AUTOLOG.consumeClick()) {
                 AutoLog.cycle(mc);
             }
@@ -146,22 +149,42 @@ public final class ModEvents {
         }
 
         @net.neoforged.bus.api.SubscribeEvent
-        public static void onScreenKey(net.neoforged.neoforge.client.event.ScreenEvent.KeyPressed.Post event) {
+        public static void onScreenKey(net.neoforged.neoforge.client.event.ScreenEvent.KeyPressed.Pre event) {
             if (!(event.getScreen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) {
                 return;
             }
-            var hovered = hoveredSlotOf(cs);
-            if (hovered == null || hovered.getItem().isEmpty()) return;
             if (!ModKeybinds.MARK_IMPORTANT.matches(event.getKeyCode(), event.getScanCode())) return;
+            Minecraft mc = Minecraft.getInstance();
+            var hovered = hoveredSlotOf(cs);
+            if (hovered == null || hovered.getItem().isEmpty()) {
+                if (mc.player != null) {
+                    mc.player.displayClientMessage(ModLang.c("marks.hover_none"), true);
+                }
+                event.setCanceled(true);
+                return;
+            }
             String key = ItemKey.stackKey(hovered.getItem());
             boolean added = Marks.get().toggle(key);
-            Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
                 mc.player.displayClientMessage(ModLang.c(
                         added ? "marks.added" : "marks.removed",
                         ItemKey.shortName(key)), true);
             }
             event.setCanceled(true);
+        }
+
+        /** Пометка предмета, на который смотрим в мире (выпавший лут). */
+        private static void markAimedWorldItem(Minecraft mc) {
+            if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult ehr
+                    && ehr.getEntity() instanceof net.minecraft.world.entity.item.ItemEntity ie) {
+                String key = ItemKey.stackKey(ie.getItem());
+                boolean added = Marks.get().toggle(key);
+                mc.player.displayClientMessage(ModLang.c(
+                        added ? "marks.added" : "marks.removed",
+                        ItemKey.shortName(key)), true);
+            } else {
+                mc.player.displayClientMessage(ModLang.c("marks.world_none"), true);
+            }
         }
 
         @net.neoforged.bus.api.SubscribeEvent
@@ -171,23 +194,22 @@ public final class ModEvents {
             }
             var marks = Marks.get().items();
             if (marks.isEmpty()) return;
-            int[] origin = screenOrigin(cs);
-            if (origin == null) return;
+            int ox = cs.getGuiLeft(), oy = cs.getGuiTop();
             var gui = event.getGuiGraphics();
             for (var sl : cs.getMenu().slots) {
                 ItemStack st = sl.getItem();
                 if (st.isEmpty()) continue;
                 if (!Marks.get().isMarked(ItemKey.stackKey(st))) continue;
-                int x = origin[0] + sl.x - 1, y = origin[1] + sl.y - 1;
-                gui.fill(x, y, x + 18, y + 1, 0xFFFFD24A);
-                gui.fill(x, y + 17, x + 18, y + 18, 0xFFFFD24A);
-                gui.fill(x, y, x + 1, y + 18, 0xFFFFD24A);
-                gui.fill(x + 17, y, x + 18, y + 18, 0xFFFFD24A);
-                gui.fill(x + 1, y + 1, x + 17, y + 17, 0x28FFD24A);
+                int x = ox + sl.x - 1, y = oy + sl.y - 1;
+                gui.fill(x, y, x + 18, y + 2, 0xFFFFD24A);
+                gui.fill(x, y + 16, x + 18, y + 18, 0xFFFFD24A);
+                gui.fill(x, y, x + 2, y + 18, 0xFFFFD24A);
+                gui.fill(x + 16, y, x + 18, y + 18, 0xFFFFD24A);
+                gui.fill(x + 2, y + 2, x + 16, y + 16, 0x30FFD24A);
             }
         }
 
-        private static java.lang.reflect.Field LEFT_POS, TOP_POS, HOVERED;
+        private static java.lang.reflect.Field HOVERED;
 
         @SuppressWarnings("unchecked")
         private static net.minecraft.world.inventory.Slot hoveredSlotOf(
@@ -204,22 +226,7 @@ public final class ModEvents {
             }
         }
 
-        @SuppressWarnings("unchecked")
-        private static int[] screenOrigin(net.minecraft.client.gui.screens.Screen scr) {
-            try {
-                if (LEFT_POS == null) {
-                    LEFT_POS = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class
-                            .getDeclaredField("leftPos");
-                    TOP_POS = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class
-                            .getDeclaredField("topPos");
-                    LEFT_POS.setAccessible(true);
-                    TOP_POS.setAccessible(true);
-                }
-                return new int[]{LEFT_POS.getInt(scr), TOP_POS.getInt(scr)};
-            } catch (Exception e) {
-                return null;
-            }
-        }
+
 
         @net.neoforged.bus.api.SubscribeEvent
         public static void onRenderGui(RenderGuiEvent.Post event) {

@@ -104,7 +104,7 @@
   "doors.rule.open_only": "only opens",
   "doors.rule.close_only": "only closes",
   "doors.rule.never": "ignore",
-  "exec.ipn_missing": "Inventory Profiles Next sort key not found — falling back to built-in sort.",
+  "exec.ipn_missing": "Inventory Profiles Next sort key not found — using built-in sort.",
   "settings.sort.ipn": "via IPN",
   "hint.rot.0": "Tip: mark precious loot with the ★ key — it glows gold in any chest.",
   "hint.rot.1": "Joke: the mod opens chests by itself. Your hands are for snacks now.",
@@ -127,5 +127,9 @@
   "al.mode.ON_DAMAGE": "on any damage",
   "al.mode.LOW_HP": "at 2 hearts",
   "al.bye_damage": "Auto-logout: took damage!",
-  "al.bye_lowhp": "Auto-logout: 2 hearts!"
+  "al.bye_lowhp": "Auto-logout: 2 hearts!",
+  "exec.ipn_found": "IPN sort key: %s",
+  "exec.ipn_unbound": "Inventory Profiles Next sort key exists but is unbound — bind it or use built-in sort.",
+  "marks.hover_none": "Hover an item first.",
+  "marks.world_none": "Aim at a dropped item first."
 }

@@ -138,9 +138,20 @@ public class StorageTaskExecutor {
         for (String k : keys) t.add(new Task(k, List.of(new Step(ipn ? "IPN_SORT" : "SORT", null))));
         begin(mc, OpType.SORT, t,
                 ModLang.fmt("op.sort") + " " + ModLang.fmt("settings.sort." + ModConfig.get().sortMode));
-        ipnKey = ipn ? findIpnSortKey() : null;
-        if (ipn && ipnKey == null) message(mc, ModLang.fmt("exec.ipn_missing"));
+        ipnKey = null;
         ipnPhase = 0;
+        if (ipn) {
+            ipnKey = findIpnSortKey();
+            if (ipnKey == null) {
+                message(mc, ModLang.fmt("exec.ipn_missing"));
+            } else if (ipnKey.isUnbound()) {
+                message(mc, ModLang.fmt("exec.ipn_unbound"));
+                ipnKey = null;
+            } else {
+                message(mc, ModLang.fmt("exec.ipn_found",
+                        ipnKey.getTranslatedKeyMessage().getString()));
+            }
+        }
     }
 
     public void startCategorize(Minecraft mc) {
@@ -746,18 +757,25 @@ public class StorageTaskExecutor {
         return item == null ? 64 : item.getDefaultInstance().getMaxStackSize();
     }
 
-    /** Ищем хоткей сортировки у Inventory Profiles Next. */
+    /** Ищем хоткей сортировки у Inventory Profiles Next (в три прохода, предпочитаем назначенный). */
     private static net.minecraft.client.KeyMapping findIpnSortKey() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options == null) return null;
+        net.minecraft.client.KeyMapping fallback = null;
         for (net.minecraft.client.KeyMapping km : mc.options.keyMappings) {
             String n = km.getName() == null ? "" : km.getName().toLowerCase();
             String cat = km.getCategory() == null ? "" : km.getCategory().toLowerCase();
-            if ((n.contains("inventoryprofile") || cat.contains("inventoryprofile")) && n.contains("sort")) {
-                return km;
+            boolean ipn = n.contains("inventoryprofile") || cat.contains("inventoryprofile");
+            boolean sortish = n.contains("sort") || n.endsWith(".sort") || n.contains("_sort");
+            if (!sortish) continue;
+            if (ipn) {
+                if (!km.isUnbound()) return km;
+                if (fallback == null) fallback = km;
+            } else if (fallback == null && (n.endsWith("sort") || n.contains(".sort"))) {
+                fallback = km; // последний шанс: чужой «sort»-хоткей
             }
         }
-        return null;
+        return fallback;
     }
 
     private static void sendKey(net.minecraft.client.KeyMapping km, int action) {
@@ -767,11 +785,24 @@ public class StorageTaskExecutor {
             long window = mc.getWindow().getWindow();
             switch (k.getType()) {
                 case KEYSYM -> mc.keyboardHandler.keyPress(window, k.getValue(), 0, action, 0);
-                case SCANCODE -> mc.keyboardHandler.keyPress(window,
-                        com.mojang.blaze3d.platform.InputConstants.UNKNOWN.getValue(), k.getValue(), action, 0);
+                case SCANCODE -> mc.keyboardHandler.keyPress(window, -1, k.getValue(), action, 0);
+                case MOUSE -> sendMouse(mc, k.getValue(), action);
                 default -> { }
             }
-        } catch (Exception ignored) {
+        } catch (Throwable t) {
+            LocalHelperUtils.LOGGER.debug("sendKey failed: {}", t.toString());
+        }
+    }
+
+    /** Мышь: полный ванильный конвейер через приватный onPress (рефлексия). */
+    private static void sendMouse(Minecraft mc, int button, int action) {
+        try {
+            var m = net.minecraft.client.MouseHandler.class
+                    .getDeclaredMethod("onPress", long.class, int.class, int.class, int.class);
+            m.setAccessible(true);
+            m.invoke(mc.mouseHandler, mc.getWindow().getWindow(), button, action, 0);
+        } catch (Throwable t) {
+            LocalHelperUtils.LOGGER.debug("sendMouse failed: {}", t.toString());
         }
     }
 
